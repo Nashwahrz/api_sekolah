@@ -28,6 +28,12 @@ interface ApiService {
         ): Call<RegisterResponse>
 
     @FormUrlEncoded
+    @POST("api_sekolah/del_sekolah.php")
+    fun delSekolah(
+        @Field("id") id: String
+    ): Call<SekolahResponse>
+
+    @FormUrlEncoded
     @POST("api_sekolah/login.php")
     fun login(
         @Field("username") username: String,
@@ -49,6 +55,9 @@ interface ApiService {
         @Part("informasi_sekolah") informasi_sekolah: RequestBody,
         @Part gambar : MultipartBody.Part
     ): Call<TambahSekolahResponse>
+
+
+
 }
 
 //    @POST("API_BASIC/register.php")

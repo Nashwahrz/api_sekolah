@@ -1,20 +1,28 @@
 package com.nashwa.api_sekolah.adapter
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.nashwa.api_sekolah.DetailSekolahActivity
 import com.nashwa.api_sekolah.R
+import com.nashwa.api_sekolah.api.ApiClient
 import com.nashwa.api_sekolah.model.SekolahResponse
 import com.squareup.picasso.Picasso
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class SekolahAdapter(
 
-    val dataSekolah: ArrayList<SekolahResponse.ListItems>
+    val dataSekolah: ArrayList<SekolahResponse.ListItems>,
+//    private val onLongClick: (SekolahResponse.ListItems) -> Unit
 ): RecyclerView.Adapter<SekolahAdapter.ViewHolder>()
 {
     class  ViewHolder(view: View): RecyclerView.ViewHolder(view){
@@ -22,6 +30,7 @@ class SekolahAdapter(
         val tvNama = view.findViewById<TextView>(R.id.tvNama)
         val tvNoTelp = view.findViewById<TextView>(R.id.tvNoTelp)
         val tvAkreditasi = view.findViewById<TextView>(R.id.tvAkreditasi)
+        
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,7 +43,7 @@ class SekolahAdapter(
        return dataSekolah.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
 
         val hasilResponse = dataSekolah[position]
         Picasso.get().load(hasilResponse.gambar).into(holder.imgSekolah)
@@ -52,11 +61,66 @@ class SekolahAdapter(
             }
             holder.imgSekolah.context.startActivity(intent)
         }
+//        holder.itemView.setOnLongClickListener {
+//            onLongClick(hasilResponse) // Panggil listener long click
+//            true
+//        }
+        holder.itemView.setOnLongClickListener {
+            AlertDialog.Builder(holder.itemView.context).apply {
+                setTitle("Konfirmasi")
+                setMessage("Apakah anda ingin melanjutkan?")
+                setIcon(R.drawable.ic_delete)
+
+                setPositiveButton("Yakin") { dialogInterface, i ->
+                    ApiClient.apiService.delSekolah(hasilResponse.id)
+                        .enqueue(object : Callback<SekolahResponse> {
+                            override fun onResponse(
+                                call: Call<SekolahResponse>,
+                                response: Response<SekolahResponse>
+                            ) {
+                                if (response.body()!!.success) {
+                                    removeItem(position)
+                                } else {
+                                    Toast.makeText(
+                                        holder.itemView.context,
+                                        response.body()!!.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
+                            }
+
+                            override fun onFailure(call: Call<SekolahResponse>, t: Throwable) {
+                                Toast.makeText(
+                                    holder.itemView.context,
+                                    "Ada Kesalahan Server",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                            }
+                        })
+                    dialogInterface.dismiss()
+                }
+
+                setNegativeButton("Batal") { dialogInterface, i ->
+                    dialogInterface.dismiss()
+                }
+            }.show()
+
+            true
+        }
+
+    }
+    fun removeItem(position: Int) {
+        dataSekolah.removeAt(position)
+        notifyItemRemoved(position) // Notify the position of the removed item
+        notifyItemRangeChanged(position, dataSekolah.size - position) // Optional: Adjust for index shifts
     }
 
     fun setData(data: List<SekolahResponse.ListItems>){
         dataSekolah.clear()
         dataSekolah.addAll(data)
+//        notifyDataSetChanged()
     }
 
 }

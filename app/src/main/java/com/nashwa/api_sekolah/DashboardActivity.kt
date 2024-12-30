@@ -1,6 +1,5 @@
 package com.nashwa.api_sekolah
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -25,9 +24,10 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var svNama: SearchView
     private lateinit var progressBar: ProgressBar
     private lateinit var rvSekolah: RecyclerView
-    private lateinit var floatBtnTambah: FloatingActionButton
+    private lateinit var floatbtnTambah: FloatingActionButton
     private lateinit var sekolahAdapter: SekolahAdapter
     private lateinit var imgNotFound: ImageView
+
 
 //    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ class DashboardActivity : AppCompatActivity() {
         svNama = findViewById(R.id.svNama)
         progressBar = findViewById(R.id.progressBar)
         rvSekolah = findViewById(R.id.rvSekolah)
-        floatBtnTambah = findViewById(R.id.floatBtnTambah)
+        floatbtnTambah = findViewById(R.id.floatBtnTambah)
         imgNotFound = findViewById(R.id.imgNotFound)
 
         getSekolah("")
@@ -58,18 +58,14 @@ class DashboardActivity : AppCompatActivity() {
             }
         })
 
-    floatBtnTambah.setOnClickListener(){
-        startActivity(Intent(this@DashboardActivity,TambahSekolahActivity::class.java))
-    }
+//    rvSekolah.setOnLongClickListener()
 
 
     }
 
-
-    @SuppressLint("SuspiciousIndentation")
-    private fun getSekolah(nama: String){
+    private fun getSekolah(nama_sekolah: String){
         progressBar.visibility = View.VISIBLE
-        ApiClient.apiService.getListSekolah(nama).enqueue(object: Callback<SekolahResponse> {
+        ApiClient.apiService.getListSekolah(nama_sekolah).enqueue(object: Callback<SekolahResponse> {
             override fun onResponse(
                 call: Call<SekolahResponse>,
                 response: Response<SekolahResponse>
@@ -96,10 +92,14 @@ class DashboardActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<SekolahResponse>, t: Throwable) {
                 Toast.makeText(this@DashboardActivity, "Error : ${t.message}", Toast.LENGTH_LONG)
-                    .show()
                 progressBar.visibility = View.GONE
             }
         })
-
+        floatbtnTambah.setOnClickListener {
+            startActivity(Intent(this@DashboardActivity,TambahSekolahActivity::class.java))
+        }
     }
+
+
+
 }
